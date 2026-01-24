@@ -1,0 +1,184 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>SecureSync</title>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;600;700&display=swap" rel="stylesheet">
+    <style>
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+        body {
+            font-family: 'Inter', sans-serif;
+            background: linear-gradient(135deg, #0f172a 0%, #111827 100%);
+            min-height: 100vh;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            color: #333;
+        }
+        .container {
+            width: 100%;
+            max-width: 960px;
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 2rem;
+            padding: 2rem;
+            perspective: 1200px;
+        }
+        .brand {
+            grid-column: 1 / -1;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 1rem;
+            margin-bottom: 1rem;
+            color: white;
+            letter-spacing: 0.5px;
+            animation: fadeIn 0.4s ease;
+        }
+        .card {
+            background: white;
+            border-radius: 14px;
+            padding: 2rem;
+            box-shadow: 0 10px 25px rgba(0,0,0,0.15);
+            transition: transform 0.35s ease, box-shadow 0.35s ease, z-index 0.2s ease, opacity 0.35s ease;
+            animation: fadeIn 0.4s ease;
+            transform-style: preserve-3d;
+        }
+        .card:hover { transform: translateY(-4px); box-shadow: 0 16px 34px rgba(0,0,0,0.18); }
+        .card h2 { color: #1f2937; margin-bottom: 0.5rem; }
+        .card p { color: #6b7280; margin-bottom: 1rem; }
+        .actions { display: flex; gap: 0.75rem; justify-content: center; }
+        .btn {
+            padding: 0.8rem 1.2rem;
+            border: none;
+            border-radius: 10px;
+            font-weight: 600;
+            cursor: pointer;
+            transition: transform 0.2s, box-shadow 0.2s;
+            text-decoration: none;
+            display: inline-flex;
+            align-items: center;
+            gap: 8px;
+        }
+        .btn-primary { background: linear-gradient(135deg, #16a34a, #15803d); color: white; }
+        .btn-secondary { background: #f3f4f6; color: #374151; }
+        .btn:hover { transform: translateY(-2px); box-shadow: 0 8px 18px rgba(0,0,0,0.12); }
+        .card.focused { transform: translateY(-10px) scale(1.06) rotateY(0deg); z-index: 2; }
+        .card.back { transform: translateY(4px) scale(0.92) rotateY(-12deg); opacity: 0.85; z-index: 1; }
+
+        /* Loader */
+        .loader {
+            position: fixed;
+            inset: 0;
+            background: rgba(255,255,255,0.95);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            z-index: 3000;
+            transition: opacity 0.3s ease;
+        }
+        .loader.hide { opacity: 0; pointer-events: none; }
+        .logo {
+            width: 120px;
+            height: 120px;
+        }
+        @keyframes pulse {
+            0% { transform: scale(1); opacity: 1; }
+            50% { transform: scale(1.06); opacity: 0.9; }
+            100% { transform: scale(1); opacity: 1; }
+        }
+        .logo-anim { animation: pulse 1.6s ease-in-out infinite; }
+        @keyframes fadeIn {
+            from { opacity: 0; transform: translateY(6px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+    </style>
+</head>
+<body>
+    <div class="ambient"></div>
+    <div class="loader" id="loader">
+        <svg class="logo logo-anim" viewBox="0 0 120 120" xmlns="http://www.w3.org/2000/svg">
+            <defs>
+                <linearGradient id="g" x1="0" x2="1" y1="0" y2="1">
+                    <stop offset="0%" stop-color="#22c55e"/>
+                    <stop offset="100%" stop-color="#16a34a"/>
+                </linearGradient>
+            </defs>
+            <circle cx="60" cy="60" r="52" fill="url(#g)" opacity="0.12"/>
+            <path d="M60 24c16 0 30 9 30 20v12c0 22-16 33-30 40-14-7-30-18-30-40V44c0-11 14-20 30-20z" fill="url(#g)"/>
+            <path d="M50 62l8 8 14-16" fill="none" stroke="#ffffff" stroke-width="6" stroke-linecap="round" stroke-linejoin="round"/>
+        </svg>
+    </div>
+
+    <div class="container" style="position: relative; z-index: 1;">
+        <div class="brand">
+            <svg class="logo" viewBox="0 0 120 120" xmlns="http://www.w3.org/2000/svg">
+                <defs>
+                    <linearGradient id="g2" x1="0" x2="1" y1="0" y2="1">
+                        <stop offset="0%" stop-color="#34d399"/>
+                        <stop offset="100%" stop-color="#16a34a"/>
+                    </linearGradient>
+                </defs>
+                <path d="M60 24c16 0 30 9 30 20v12c0 22-16 33-30 40-14-7-30-18-30-40V44c0-11 14-20 30-20z" fill="url(#g2)" opacity="0.25"/>
+                <path d="M46 58l10 10 18-20" fill="none" stroke="#ffffff" stroke-width="6" stroke-linecap="round" stroke-linejoin="round"/>
+            </svg>
+            <div style="font-size: 1.8rem; font-weight: 800; color: white;">SecureSync</div>
+        </div>
+
+        <div class="card admin" id="adminCard">
+            <h2>Admin Panel</h2>
+            <p>Manage security configuration, review audit logs, and monitor transmissions.</p>
+            <div class="actions">
+                <a class="btn btn-primary" href="/admin/login">Open Admin</a>
+            </div>
+        </div>
+
+        <div class="card user" id="userCard">
+            <h2>User Panel</h2>
+            <p>Send secure data to the server with encryption and digital signatures.</p>
+            <div class="actions">
+                <a class="btn btn-primary" href="/user">Open User</a>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        const loader = document.getElementById('loader');
+        const adminCard = document.getElementById('adminCard');
+        const userCard = document.getElementById('userCard');
+        window.addEventListener('load', () => {
+            setTimeout(() => { loader.classList.add('hide'); }, 900);
+        });
+        adminCard.addEventListener('mouseenter', () => {
+            adminCard.classList.add('focused');
+            userCard.classList.add('back');
+        });
+        adminCard.addEventListener('mouseleave', () => {
+            adminCard.classList.remove('focused');
+            userCard.classList.remove('back');
+        });
+        userCard.addEventListener('mouseenter', () => {
+            userCard.classList.add('focused');
+            adminCard.classList.add('back');
+        });
+        userCard.addEventListener('mouseleave', () => {
+            userCard.classList.remove('focused');
+            adminCard.classList.remove('back');
+        });
+    </script>
+    <style>
+        .ambient { position: fixed; inset: 0; pointer-events: none; z-index: 0; }
+        .ambient::before { content: ""; position: absolute; width: 520px; height: 520px; background: radial-gradient(closest-side, rgba(34,197,94,0.35), transparent 70%); filter: blur(60px); top: -80px; left: -120px; border-radius: 50%; animation: float1 12s ease-in-out infinite; }
+        .ambient::after { content: ""; position: absolute; width: 520px; height: 520px; background: radial-gradient(closest-side, rgba(22,163,74,0.35), transparent 70%); filter: blur(60px); bottom: -120px; right: -180px; border-radius: 50%; animation: float2 16s ease-in-out infinite; }
+        @keyframes float1 { 0% { transform: translate(0,0); } 50% { transform: translate(30px, 20px); } 100% { transform: translate(0,0); } }
+        @keyframes float2 { 0% { transform: translate(0,0) rotate(0deg); } 50% { transform: translate(-30px, -25px) rotate(6deg); } 100% { transform: translate(0,0) rotate(0deg); } }
+        .card::after { content: ""; position: absolute; inset: -2px; border-radius: 16px; pointer-events: none; background: linear-gradient(135deg, rgba(34,197,94,0.15), rgba(22,163,74,0.05)); filter: blur(8px); opacity: 0; transition: opacity 0.35s ease; }
+        .card.focused::after, .card:hover::after { opacity: 1; }
+        @media (max-width: 768px) {
+            .container { grid-template-columns: 1fr; }
+            .brand .logo { width: 90px; height: 90px; }
+        }
+    </style>
+</body>
+</html>

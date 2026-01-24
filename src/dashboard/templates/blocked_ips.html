@@ -1,0 +1,124 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Blocked IPs - SecureSync Admin</title>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;600;700&display=swap" rel="stylesheet">
+    <style>
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+        body {
+            font-family: 'Inter', sans-serif;
+            background: linear-gradient(135deg, #0f172a 0%, #111827 100%);
+            min-height: 100vh;
+            color: #333;
+            padding: 2rem;
+        }
+        .container {
+            max-width: 1000px;
+            margin: 0 auto;
+            background: white;
+            border-radius: 12px;
+            padding: 2rem;
+            box-shadow: 0 4px 15px rgba(0, 0, 0, 0.1);
+            animation: fadeIn 0.4s ease;
+        }
+        h2 { color: #22c55e; margin-bottom: 1.5rem; display: flex; align-items: center; gap: 0.5rem; }
+        
+        table { width: 100%; border-collapse: collapse; margin-bottom: 2rem; }
+        thead th {
+            background: #f9fafb;
+            padding: 1rem;
+            text-align: left;
+            border-bottom: 2px solid #e5e7eb;
+            color: #374151;
+        }
+        tbody td { padding: 1rem; border-bottom: 1px solid #f3f4f6; }
+        tbody tr:hover { background: #f9fafb; }
+        
+        .btn {
+            padding: 0.5rem 1rem;
+            border: none;
+            border-radius: 6px;
+            cursor: pointer;
+            font-weight: 600;
+            transition: all 0.2s;
+            text-decoration: none;
+            display: inline-block;
+        }
+        .btn-back { background: #f3f4f6; color: #374151; margin-bottom: 1rem; }
+        .btn-back:hover { background: #e5e7eb; }
+        
+        .btn-unblock { background: #fee2e2; color: #991b1b; }
+        .btn-unblock:hover { background: #fecaca; }
+        
+        .btn-accept { background: #d1fae5; color: #065f46; margin-left: 0.5rem; }
+        .btn-accept:hover { background: #a7f3d0; }
+
+        .empty-state {
+            text-align: center;
+            padding: 3rem;
+            color: #6b7280;
+        }
+        @keyframes fadeIn {
+            from { opacity: 0; transform: translateY(6px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+        .ambient { position: fixed; inset: 0; pointer-events: none; z-index: 0; }
+        .ambient::before { content: ""; position: absolute; width: 520px; height: 520px; background: radial-gradient(closest-side, rgba(34,197,94,0.25), transparent 70%); filter: blur(60px); top: -80px; left: -120px; border-radius: 50%; animation: float1 12s ease-in-out infinite; }
+        .ambient::after { content: ""; position: absolute; width: 520px; height: 520px; background: radial-gradient(closest-side, rgba(22,163,74,0.25), transparent 70%); filter: blur(60px); bottom: -120px; right: -180px; border-radius: 50%; animation: float2 16s ease-in-out infinite; }
+        @keyframes float1 { 0% { transform: translate(0,0); } 50% { transform: translate(30px, 20px); } 100% { transform: translate(0,0); } }
+        @keyframes float2 { 0% { transform: translate(0,0) rotate(0deg); } 50% { transform: translate(-30px, -25px) rotate(6deg); } 100% { transform: translate(0,0) rotate(0deg); } }
+        @media (max-width: 768px) {
+            .container { padding: 1rem; }
+            table { display: block; overflow-x: auto; }
+        }
+    </style>
+</head>
+<body>
+    <div class="ambient"></div>
+    <div class="container">
+        <a href="/admin/dashboard" class="btn btn-back">← Back to Dashboard</a>
+        <h2>🚫 Blocked & Rejected IP Management</h2>
+        
+        {% if logs %}
+        <table>
+            <thead>
+                <tr>
+                    <th>Plant ID</th>
+                    <th>IP Address</th>
+                    <th>Reason</th>
+                    <th>Time</th>
+                    <th>Actions</th>
+                </tr>
+            </thead>
+            <tbody>
+                {% for log in logs %}
+                <tr>
+                    <td>{{ log.plant_id }}</td>
+                    <td>{{ log.ip }}</td>
+                    <td>{{ log.reason }}</td>
+                    <td>{{ log.time }}</td>
+                    <td>
+                        <form method="POST" action="/admin/unblock" style="display:inline;">
+                            <input type="hidden" name="ip" value="{{ log.ip }}">
+                            <button type="submit" class="btn btn-unblock">Unblock</button>
+                        </form>
+                        <form method="POST" action="/admin/accept_block" style="display:inline;">
+                            <input type="hidden" name="ip" value="{{ log.ip }}">
+                            <button type="submit" class="btn btn-accept">Accept (Whitelist)</button>
+                        </form>
+                    </td>
+                </tr>
+                {% endfor %}
+            </tbody>
+        </table>
+        {% else %}
+        <div class="empty-state">
+            <h3>No blocked or rejected IPs found</h3>
+            <p>Everything is running smoothly!</p>
+        </div>
+        {% endif %}
+    </div>
+</body>
+</html>

@@ -1,0 +1,808 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>SecureSync – User Panel</title>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;600;700&display=swap" rel="stylesheet">
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Inter', sans-serif;
+            background: linear-gradient(135deg, #0f172a 0%, #111827 100%);
+            min-height: 100vh;
+            color: #333;
+        }
+
+        .header {
+            background: rgba(255, 255, 255, 0.95);
+            backdrop-filter: blur(10px);
+            box-shadow: 0 4px 20px rgba(0, 0, 0, 0.1);
+            padding: 1rem 2rem;
+            position: sticky;
+            top: 0;
+            z-index: 100;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            animation: fadeIn 0.4s ease;
+        }
+
+        .header h1 {
+            background: linear-gradient(90deg, #34d399, #10b981);
+            -webkit-background-clip: text;
+            background-clip: text;
+            color: transparent;
+            font-size: 1.9rem;
+            font-weight: 800;
+            margin: 0;
+            letter-spacing: 0.3px;
+            text-shadow: 0 2px 8px rgba(16,185,129,0.25);
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+        .brand-logo { width: 28px; height: 28px; filter: drop-shadow(0 2px 6px rgba(16,185,129,0.35)); }
+
+        .nav-links {
+            display: flex;
+            gap: 1rem;
+        }
+
+        .nav-links a {
+            text-decoration: none;
+            color: #374151;
+            font-weight: 700;
+            padding: 0.55rem 1.1rem;
+            border-radius: 999px;
+            transition: all 0.25s ease;
+            position: relative;
+            border: 1.5px solid transparent;
+            overflow: hidden;
+        }
+
+        .nav-links a:hover {
+            background: rgba(22,163,74,0.08);
+            color: #16a34a;
+            border-color: rgba(34,197,94,0.25);
+            transform: translateY(-1px);
+            box-shadow: 0 6px 16px rgba(34,197,94,0.20);
+        }
+        
+        .nav-links a.active {
+            background: linear-gradient(135deg, #16a34a, #15803d);
+            color: white;
+            box-shadow: 0 8px 20px rgba(34,197,94,0.35);
+            border-color: transparent;
+            animation: pulseGlow 3s ease-in-out infinite;
+        }
+        .nav-links a::after {
+            content: "";
+            position: absolute;
+            left: 12px;
+            right: 12px;
+            bottom: 4px;
+            height: 2px;
+            background: linear-gradient(90deg, #34d399, #10b981);
+            transform: scaleX(0);
+            transform-origin: center;
+            transition: transform 0.25s ease;
+            opacity: 0.8;
+        }
+        .nav-links a:hover::after {
+            transform: scaleX(1);
+        }
+        @keyframes pulseGlow {
+            0% { box-shadow: 0 6px 16px rgba(34,197,94,0.25); transform: translateY(0); }
+            50% { box-shadow: 0 10px 24px rgba(34,197,94,0.40); transform: translateY(-1px); }
+            100% { box-shadow: 0 6px 16px rgba(34,197,94,0.25); transform: translateY(0); }
+        }
+
+        .container {
+            max-width: 800px;
+            margin: 2rem auto;
+            padding: 0 2rem;
+        }
+
+        .card {
+            background: white;
+            border-radius: 12px;
+            padding: 2rem;
+            box-shadow: 0 4px 15px rgba(0, 0, 0, 0.1);
+            transition: transform 0.2s ease, box-shadow 0.2s ease;
+            animation: fadeIn 0.4s ease;
+        }
+
+        .card h2 {
+            color: #1f2937;
+            margin-bottom: 1.5rem;
+            font-size: 1.5rem;
+        }
+
+        .form-group {
+            margin-bottom: 1.5rem;
+        }
+
+        .form-group label {
+            display: block;
+            margin-bottom: 0.5rem;
+            font-weight: 600;
+            color: #4b5563;
+        }
+
+        .form-group select,
+        .form-group textarea,
+        .form-group input {
+            width: 100%;
+            padding: 0.75rem;
+            border: 2px solid #e5e7eb;
+            border-radius: 8px;
+            font-size: 1rem;
+            transition: border-color 0.3s ease;
+            font-family: inherit;
+        }
+
+        .form-group select:focus,
+        .form-group textarea:focus,
+        .form-group input:focus {
+            outline: none;
+            border-color: #4f46e5;
+        }
+
+        .btn {
+            padding: 0.75rem 1.5rem;
+            border: none;
+            border-radius: 8px;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            text-decoration: none;
+            display: inline-block;
+            font-size: 1rem;
+            width: 100%;
+        }
+
+        .btn-primary {
+            background: linear-gradient(135deg, #16a34a, #15803d);
+            color: white;
+        }
+
+        .btn-primary:hover {
+            transform: scale(1.03);
+            box-shadow: 0 8px 24px rgba(34, 197, 94, 0.4);
+            background: linear-gradient(135deg, #22c55e, #16a34a);
+        }
+        
+        .result-box {
+            margin-top: 2rem;
+            padding: 1rem;
+            border-radius: 8px;
+            display: none;
+        }
+        
+        .result-box.success {
+            background: #d1fae5;
+            border: 1px solid #34d399;
+            color: #065f46;
+        }
+        
+        .result-box.error {
+            background: #fee2e2;
+            border: 1px solid #f87171;
+            color: #991b1b;
+        }
+
+        .log-details {
+            margin-top: 1rem;
+            background: #1f2937;
+            color: #e5e7eb;
+            padding: 1rem;
+            border-radius: 8px;
+            font-family: monospace;
+            font-size: 0.9rem;
+            white-space: pre-wrap;
+            display: none;
+        }
+
+        /* Help Button Styling */
+        .help-btn {
+            background-color: #f3f4f6;
+            color: #4b5563;
+            border: 2px solid #e5e7eb;
+            width: 30px;
+            height: 30px;
+            border-radius: 50%;
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+            font-weight: bold;
+            cursor: pointer;
+            margin-left: 10px;
+            font-size: 16px;
+            transition: all 0.2s;
+        }
+        
+        .help-btn:hover {
+            border-color: #4f46e5;
+            color: #4f46e5;
+            background-color: #e0e7ff;
+        }
+
+        /* Modal Styling */
+        .modal {
+            display: none; 
+            position: fixed; 
+            z-index: 1000; 
+            left: 0;
+            top: 0;
+            width: 100%; 
+            height: 100%; 
+            overflow: auto; 
+            background-color: rgba(0,0,0,0.5); 
+            backdrop-filter: blur(4px);
+        }
+
+        .modal-content {
+            background-color: #fefefe;
+            margin: 15% auto; 
+            padding: 25px;
+            border: 1px solid #888;
+            width: 90%;
+            max-width: 500px;
+            border-radius: 12px;
+            box-shadow: 0 4px 20px rgba(0,0,0,0.2);
+            position: relative;
+        }
+
+        .close {
+            color: #aaa;
+            float: right;
+            font-size: 28px;
+            font-weight: bold;
+            cursor: pointer;
+            line-height: 1;
+        }
+
+        .close:hover,
+        .close:focus {
+            color: #000;
+            text-decoration: none;
+            cursor: pointer;
+        }
+        
+        .modal h3 {
+            color: #4f46e5;
+            margin-bottom: 15px;
+            border-bottom: 2px solid #f3f4f6;
+            padding-bottom: 10px;
+        }
+        
+        .rule-item {
+            margin-bottom: 12px;
+            display: flex;
+            align-items: flex-start;
+        }
+        
+        .rule-icon {
+            margin-right: 10px;
+            font-size: 18px;
+        }
+
+        .chat-widget {
+            display: none;
+            position: fixed;
+            z-index: 2000;
+            right: 20px;
+            bottom: 20px;
+            width: 360px;
+            height: 480px;
+            background: rgba(17,24,39,0.75);
+            border-radius: 16px;
+            box-shadow: 0 16px 40px rgba(0,0,0,0.35);
+            border: 1px solid rgba(255,255,255,0.08);
+            backdrop-filter: blur(12px);
+            flex-direction: column;
+            overflow: hidden;
+            animation: slideUp 0.25s ease;
+        }
+
+        .chat-header {
+            padding: 1rem;
+            background: linear-gradient(135deg, #16a34a, #15803d);
+            color: white;
+            font-weight: 700;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            letter-spacing: 0.2px;
+        }
+        
+        .chat-actions {
+            display: flex;
+            gap: 10px;
+        }
+        
+        .chat-btn-small {
+            background: none; border: none; color: white; cursor: pointer; font-size: 0.8rem;
+            text-decoration: underline;
+        }
+
+        .chat-messages {
+            flex: 1;
+            padding: 1rem;
+            overflow-y: auto;
+            display: flex;
+            flex-direction: column;
+            gap: 0.9rem;
+            background: radial-gradient(1200px 400px at 20% 10%, rgba(34,197,94,0.07), transparent 60%),
+                        radial-gradient(900px 340px at 90% 90%, rgba(22,163,74,0.06), transparent 65%);
+        }
+
+        .message {
+            max-width: 80%;
+            padding: 0.7rem 0.95rem;
+            border-radius: 14px;
+            font-size: 0.95rem;
+            line-height: 1.5;
+            position: relative;
+            transform-origin: bottom;
+        }
+        
+        .message .meta {
+            display: flex;
+            justify-content: flex-end;
+            align-items: center;
+            gap: 4px;
+            font-size: 0.65rem;
+            margin-top: 4px;
+            opacity: 0.8;
+        }
+        
+        .tick { font-size: 0.7rem; }
+
+        .message.user {
+            align-self: flex-end;
+            background: linear-gradient(135deg, #16a34a, #15803d);
+            color: white;
+            border-bottom-right-radius: 4px;
+            box-shadow: 0 10px 24px rgba(34,197,94,0.25);
+            animation: bubbleIn 0.25s ease;
+        }
+        
+        .message.user .meta { color: rgba(255,255,255,0.9); }
+
+        .message.admin {
+            align-self: flex-start;
+            background: rgba(255,255,255,0.9);
+            border: 1px solid rgba(255,255,255,0.6);
+            color: #111827;
+            border-bottom-left-radius: 4px;
+            box-shadow: 0 8px 20px rgba(0,0,0,0.12);
+            animation: bubbleIn 0.25s ease;
+        }
+        
+        .message.admin .meta { color: #6b7280; }
+
+        .chat-input {
+            padding: 0.85rem;
+            background: rgba(255,255,255,0.9);
+            border-top: 1px solid rgba(255,255,255,0.5);
+            display: flex;
+            gap: 0.5rem;
+        }
+
+        .chat-input input {
+            flex: 1;
+            padding: 0.6rem 0.75rem;
+            border: 1.6px solid #e5e7eb;
+            border-radius: 8px;
+            outline: none;
+            transition: all 0.2s ease;
+            background: rgba(255,255,255,0.95);
+        }
+        .chat-input input:focus {
+            border-color: #22c55e;
+            box-shadow: 0 0 0 4px rgba(34,197,94,0.15);
+        }
+
+        .chat-input button {
+            padding: 0.55rem 1.05rem;
+            background: linear-gradient(135deg, #16a34a, #15803d);
+            color: white;
+            border: none;
+            border-radius: 8px;
+            cursor: pointer;
+            transition: transform 0.15s ease, box-shadow 0.15s ease;
+            box-shadow: 0 8px 18px rgba(34,197,94,0.28);
+        }
+        .chat-input button:hover { transform: translateY(-1px) scale(1.02); box-shadow: 0 10px 22px rgba(34,197,94,0.35); }
+        .chat-input button:active { transform: translateY(0) scale(0.99); box-shadow: 0 6px 14px rgba(34,197,94,0.25); }
+
+    </style>
+    <style>
+        @keyframes fadeIn {
+            from { opacity: 0; transform: translateY(6px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+        @keyframes slideUp {
+            from { opacity: 0; transform: translateY(8px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+        .card:hover { transform: translateY(-2px); box-shadow: 0 8px 24px rgba(0,0,0,0.12); }
+        .help-btn:hover { transform: translateY(-1px); }
+        @keyframes bubbleIn { from { opacity: 0; transform: translateY(6px) scale(0.98); } to { opacity: 1; transform: translateY(0) scale(1); } }
+        .typing { display: inline-flex; align-items: center; gap: 4px; }
+        .typing span { width: 6px; height: 6px; border-radius: 999px; background: rgba(255,255,255,0.9); display: inline-block; animation: typingBlink 1s ease-in-out infinite; }
+        .typing span:nth-child(2) { animation-delay: 0.15s; }
+        .typing span:nth-child(3) { animation-delay: 0.3s; }
+        @keyframes typingBlink { 0% { opacity: 0.3; transform: translateY(0); } 50% { opacity: 1; transform: translateY(-2px); } 100% { opacity: 0.3; transform: translateY(0); } }
+        .ambient { position: fixed; inset: 0; pointer-events: none; z-index: 0; }
+        .ambient::before { content: ""; position: absolute; width: 520px; height: 520px; background: radial-gradient(closest-side, rgba(34,197,94,0.22), transparent 70%); filter: blur(60px); top: -80px; left: -120px; border-radius: 50%; animation: float1 12s ease-in-out infinite; }
+        .ambient::after { content: ""; position: absolute; width: 520px; height: 520px; background: radial-gradient(closest-side, rgba(22,163,74,0.22), transparent 70%); filter: blur(60px); bottom: -120px; right: -180px; border-radius: 50%; animation: float2 16s ease-in-out infinite; }
+        @keyframes float1 { 0% { transform: translate(0,0); } 50% { transform: translate(30px, 20px); } 100% { transform: translate(0,0); } }
+        @keyframes float2 { 0% { transform: translate(0,0) rotate(0deg); } 50% { transform: translate(-30px, -25px) rotate(6deg); } 100% { transform: translate(0,0) rotate(0deg); } }
+        @media (max-width: 768px) {
+            .container { padding: 0 1rem; }
+            .card { padding: 1.25rem; }
+            .header { padding: 0.75rem 1rem; }
+            .header h1 { font-size: 1.4rem; }
+            .brand-logo { width: 22px; height: 22px; }
+            .nav-links { flex-wrap: wrap; gap: 0.5rem; }
+            .chat-widget {
+                width: calc(100% - 24px);
+                right: 12px;
+                left: 12px;
+                height: 60vh;
+            }
+            .chat-messages { padding: 0.75rem; }
+            .chat-input { flex-direction: column; }
+            .chat-input input, .chat-input button { width: 100%; }
+        }
+        @media (max-width: 480px) {
+            .header h1 { font-size: 1.2rem; }
+            .btn-primary { font-size: 0.95rem; }
+        }
+    </style>
+</head>
+<body>
+    <div class="ambient"></div>
+    <header class="header">
+        <h1 class="brand-title">
+            <svg class="brand-logo" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg" aria-hidden="true">
+                <defs>
+                    <linearGradient id="hdrGUser" x1="0" x2="1" y1="0" y2="1">
+                        <stop offset="0%" stop-color="#34d399"/>
+                        <stop offset="100%" stop-color="#16a34a"/>
+                    </linearGradient>
+                </defs>
+                <path d="M12 2l7 4v6c0 5-3.8 9.4-7 10-3.2-.6-7-5-7-10V6l7-4z" fill="url(#hdrGUser)"/>
+                <path d="M9 12l2 2 4-4" fill="none" stroke="#ffffff" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"/>
+            </svg>
+            SecureSync User Panel
+        </h1>
+        <div class="nav-links">
+            <a href="/admin/login">Admin Login</a>
+            <a href="/user" class="active">User Panel</a>
+        </div>
+    </header>
+
+    <div class="container">
+        <div class="card">
+            <div style="display: flex; align-items: center; margin-bottom: 1.5rem;">
+                <h2 style="margin-bottom: 0;">📤 Send Secure Data</h2>
+                <div class="help-btn" onclick="toggleChat()" style="margin-right: 0px;" title="Customer Support">💬</div>
+                <div class="help-btn" onclick="openModal()" title="View Rules">?</div>
+            </div>
+            
+            <form id="dataForm">
+                <div class="form-group">
+                    <label for="plant_id">Select Plant ID</label>
+                    <select id="plant_id" name="plant_id" required>
+                        <option value="Plant-A">Plant-A (127.0.0.1)</option>
+                        <option value="Plant-B">Plant-B (192.168.1.10)</option>
+                        <option value="Plant-C">Plant-C (10.0.0.45)</option>
+                        <option value="Plant-D">Plant-D (172.16.0.23)</option>
+                        <option value="Plant-E">Plant-E (10.10.10.5)</option>
+                        <option value="Plant-F">Plant-F (192.168.2.50)</option>
+                        <option value="Plant-G">Plant-G (10.20.30.40)</option>
+                        <option value="Plant-H">Plant-H (172.16.1.12)</option>
+                        <option value="Plant-I">Plant-I (192.168.3.15)</option>
+                        <option value="Plant-J">Plant-J (10.0.1.12)</option>
+                        <option value="Plant-K">Plant-K (10.10.20.30)</option>
+                        <option value="Plant-L">Plant-L (192.168.4.25)</option>
+                        <option value="Plant-M">Plant-M (172.16.2.34)</option>
+                        <option value="Plant-N">Plant-N (10.30.40.50)</option>
+                        <option value="Plant-O">Plant-O (192.168.5.60)</option>
+                        <option value="Plant-P">Plant-P (10.0.2.99)</option>
+                        <option value="Plant-Q">Plant-Q (172.16.3.77)</option>
+                        <option value="Plant-R">Plant-R (192.168.10.100)</option>
+                        <option value="Plant-S">Plant-S (10.50.60.70)</option>
+                        <option value="Plant-T">Plant-T (172.16.4.88)</option>
+                    </select>
+                </div>
+
+                <div class="form-group">
+                    <label for="priority">Data Priority</label>
+                    <select id="priority" name="priority">
+                        <option value="non-critical">Non-Critical (Standard)</option>
+                        <option value="critical">Critical (High Priority)</option>
+                    </select>
+                </div>
+
+                <div class="form-group">
+                    <label for="payload">Data Payload</label>
+                    <textarea id="payload" name="payload" rows="5" placeholder="Enter critical production data here..." required></textarea>
+                </div>
+
+                <button type="submit" class="btn btn-primary">🔒 Sign, Encrypt & Send</button>
+            </form>
+
+            <div id="resultBox" class="result-box"></div>
+            <div id="logDetails" class="log-details"></div>
+        </div>
+    </div>
+
+    <div id="rulesModal" class="modal">
+        <div class="modal-content">
+            <span class="close" onclick="closeModal()">&times;</span>
+            <h3>🛡️ Security Protocols & Rules</h3>
+            
+            <div class="rule-item">
+                <span class="rule-icon">✅</span>
+                <div><strong>Whitelist Policy:</strong> Only authorized IP addresses can transmit data. Unauthorized IPs are instantly rejected.</div>
+            </div>
+
+            <div class="rule-item">
+                <span class="rule-icon">⚠️</span>
+                <div><strong>Non-Critical Rate Limit:</strong> Maximum <strong>5 requests</strong> per minute. Exceeding this will result in a temporary block.</div>
+            </div>
+
+            <div class="rule-item">
+                <span class="rule-icon">🚨</span>
+                <div><strong>Critical Rate Limit:</strong> Maximum <strong>10 requests</strong> per minute. High-priority data has higher throughput allowances.</div>
+            </div>
+
+            <div class="rule-item">
+                <span class="rule-icon">🚫</span>
+                <div><strong>Blocking Policy:</strong> Repeated violations (3+ rejections) may lead to a permanent IP block requiring admin intervention.</div>
+            </div>
+            
+            <div style="margin-top: 15px; font-size: 0.85rem; color: #6b7280; text-align: center;">
+                SecureSync v1.0 • Protected by AES-256 & RSA-2048
+            </div>
+        </div>
+    </div>
+
+    <div id="chatWidget" class="chat-widget">
+        <div class="chat-header">
+            <span>👨‍💻 Support Chat</span>
+            <div class="chat-actions">
+                <button class="chat-btn-small" onclick="clearChat()">Clear</button>
+                <button onclick="toggleChat()" style="background:none; border:none; color:white; font-size:1.2rem; cursor:pointer;">&times;</button>
+            </div>
+        </div>
+        <div class="chat-messages" id="userMessagesArea">
+            <div style="text-align:center; color:#6b7280; font-size:0.8rem; margin-top:1rem;">
+                Connected as <span id="chatPlantId">...</span>
+            </div>
+        </div>
+        <div class="chat-input">
+            <input type="text" id="userMsgInput" placeholder="Type a message...">
+            <button onclick="sendUserMessage()">➤</button>
+        </div>
+    </div>
+
+    <script>
+        // Chat Logic
+        let chatInterval = null;
+
+        function toggleChat() {
+            const widget = document.getElementById('chatWidget');
+            const plantId = document.getElementById('plant_id').value;
+            document.getElementById('chatPlantId').innerText = plantId;
+            
+            if (widget.style.display === 'none' || !widget.style.display) {
+                widget.style.display = 'flex';
+                loadUserChats();
+                chatInterval = setInterval(loadUserChats, 3000);
+            } else {
+                widget.style.display = 'none';
+                if (chatInterval) clearInterval(chatInterval);
+            }
+        }
+        
+        function clearChat() {
+            const plantId = document.getElementById('plant_id').value;
+            // Store current count to hide existing messages
+            const area = document.getElementById('userMessagesArea');
+            // We count messages currently in DOM (excluding header)
+            // But better to use the data from fetch.
+            // Let's just use a timestamp approach or count.
+            // Since we don't have persistent IDs, we'll use the count of messages currently on server.
+             fetch(`/api/chat/get/${plantId}`)
+                .then(res => res.json())
+                .then(data => {
+                    const count = data.chats ? data.chats.length : 0;
+                    localStorage.setItem('hiddenCount_' + plantId, count);
+                    loadUserChats(); // Refresh view
+                });
+        }
+
+        function loadUserChats() {
+            const plantId = document.getElementById('plant_id').value;
+            // Update header in chat widget if it's open
+            const widgetTitle = document.getElementById('chatPlantId');
+            if (widgetTitle) widgetTitle.innerText = plantId;
+
+            fetch(`/api/chat/get/${plantId}`)
+                .then(res => res.json())
+                .then(data => {
+                    const area = document.getElementById('userMessagesArea');
+                    const wasScrolledToBottom = area.scrollHeight - area.scrollTop <= area.clientHeight + 50;
+                    
+                    const hiddenCount = parseInt(localStorage.getItem('hiddenCount_' + plantId) || 0);
+                    
+                    // Re-render
+                    const header = area.firstElementChild; // Keep the header
+                    area.innerHTML = '';
+                    area.appendChild(header);
+
+                    if (data.chats) {
+                        // Slice messages to hide cleared ones
+                        const visibleChats = data.chats.slice(hiddenCount);
+                        
+                        visibleChats.forEach(msg => {
+                            const div = document.createElement('div');
+                            div.className = `message ${msg.sender}`;
+                            
+                            // Ticks logic
+                            let ticks = '';
+                            if (msg.sender === 'user') {
+                                const tickIcon = msg.status === 'read' ? '✓✓' : '✓';
+                                const tickColor = msg.status === 'read' ? '#4ade80' : 'rgba(255,255,255,0.7)'; // Green if read
+                                ticks = `<span class="tick" style="color:${tickColor}; margin-left:4px;">${tickIcon}</span>`;
+                            }
+
+                            div.innerHTML = `
+                                <div>${msg.message}</div>
+                                <div class="meta">
+                                    <span>${msg.time}</span>
+                                    ${ticks}
+                                </div>
+                            `;
+                            area.appendChild(div);
+                        });
+                    }
+
+                    if (wasScrolledToBottom) {
+                        area.scrollTop = area.scrollHeight;
+                    }
+                });
+        }
+        
+        // Override clearChat to use the hiddenCount logic
+        function clearChat() {
+            const plantId = document.getElementById('plant_id').value;
+            // Fetch current count to know how many to hide
+             fetch(`/api/chat/get/${plantId}`)
+                .then(res => res.json())
+                .then(data => {
+                    const count = data.chats ? data.chats.length : 0;
+                    localStorage.setItem('hiddenCount_' + plantId, count);
+                    loadUserChats(); // Refresh view
+                });
+        }
+
+        function sendUserMessage() {
+            const input = document.getElementById('userMsgInput');
+            const message = input.value.trim();
+            const plantId = document.getElementById('plant_id').value;
+            
+            if (!message) return;
+            const area = document.getElementById('userMessagesArea');
+            const temp = document.createElement('div');
+            temp.className = 'message user pending';
+            temp.innerHTML = `<div class="typing"><span></span><span></span><span></span></div>`;
+            area.appendChild(temp);
+            area.scrollTop = area.scrollHeight;
+
+            fetch('/api/chat/send', {
+                method: 'POST',
+                headers: {'Content-Type': 'application/json'},
+                body: JSON.stringify({
+                    plant_id: plantId,
+                    sender: 'user',
+                    message: message
+                })
+            })
+            .then(res => res.json())
+            .then(data => {
+                if (data.status === 'success') {
+                    input.value = '';
+                    document.querySelectorAll('.message.user.pending').forEach(el => el.remove());
+                    loadUserChats();
+                }
+            });
+        }
+
+        // Update chat identity when dropdown changes
+        document.getElementById('plant_id').addEventListener('change', function() {
+            const widget = document.getElementById('chatWidget');
+            if (widget.style.display === 'flex') {
+                document.getElementById('chatPlantId').innerText = this.value;
+                loadUserChats();
+            }
+        });
+        
+        document.getElementById('userMsgInput').addEventListener('keypress', function(e) {
+            if (e.key === 'Enter') sendUserMessage();
+        });
+
+        // Modal Logic
+        const modal = document.getElementById("rulesModal");
+
+        function openModal() {
+            modal.style.display = "block";
+        }
+
+        function closeModal() {
+            modal.style.display = "none";
+        }
+
+        // Close when clicking outside
+        window.onclick = function(event) {
+            if (event.target == modal) {
+                modal.style.display = "none";
+            }
+        }
+
+        document.getElementById("dataForm").addEventListener("submit", async function(e) {
+            e.preventDefault();
+            
+            const form = e.target;
+            const formData = new FormData(form);
+            const data = Object.fromEntries(formData.entries());
+            
+            const resultBox = document.getElementById('resultBox');
+            const logDetails = document.getElementById('logDetails');
+            
+            resultBox.style.display = 'block';
+            resultBox.className = 'result-box';
+            resultBox.textContent = 'Processing...';
+            logDetails.style.display = 'none';
+
+            fetch('/simulate_send', {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json'
+                },
+                body: JSON.stringify(data)
+            })
+            .then(response => response.json())
+            .then(data => {
+                if (data.status === 'success') {
+                    resultBox.className = 'result-box success';
+                    resultBox.textContent = '✅ Data successfully verified and accepted by server!';
+                } else {
+                    resultBox.className = 'result-box error';
+                    resultBox.textContent = '❌ ' + (data.message || 'Transmission rejected');
+                }
+                
+                if (data.logs) {
+                    logDetails.style.display = 'block';
+                    logDetails.textContent = data.logs.join('\n');
+                }
+            })
+            .catch(error => {
+                resultBox.className = 'result-box error';
+                resultBox.textContent = '❌ Error: ' + error.message;
+            });
+        });
+    </script>
+</body>
+</html>

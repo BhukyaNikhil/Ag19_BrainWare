@@ -1,0 +1,273 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Security Configuration - SecureSync</title>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;600;700&display=swap" rel="stylesheet">
+    <style>
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+        body {
+            font-family: 'Inter', sans-serif;
+            background: linear-gradient(135deg, #0f172a 0%, #111827 100%);
+            min-height: 100vh;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            padding: 2rem;
+        }
+        .container {
+            background: white;
+            padding: 2.5rem;
+            border-radius: 12px;
+            box-shadow: 0 10px 25px rgba(0,0,0,0.15);
+            width: 100%;
+            max-width: 500px;
+        }
+        h2 {
+            color: #22c55e;
+            margin-bottom: 2rem;
+            text-align: center;
+        }
+        .form-group { margin-bottom: 1.5rem; }
+        label { display: block; margin-bottom: 0.5rem; font-weight: 600; color: #374151; }
+        select {
+            width: 100%;
+            padding: 0.75rem;
+            border: 2px solid #e5e7eb;
+            border-radius: 8px;
+            font-size: 1rem;
+            outline: none;
+            transition: border-color 0.2s;
+        }
+        select:focus { border-color: #4f46e5; }
+        
+        .toggles {
+            background: #f9fafb;
+            padding: 1.5rem;
+            border-radius: 8px;
+            margin-bottom: 2rem;
+        }
+        .toggle-item {
+            display: flex;
+            align-items: center;
+            margin-bottom: 1rem;
+            cursor: pointer;
+        }
+        .toggle-item:last-child { margin-bottom: 0; }
+        .toggle-item input {
+            width: 20px;
+            height: 20px;
+            margin-right: 10px;
+            cursor: pointer;
+        }
+        
+        .btn {
+            width: 100%;
+            padding: 0.8rem;
+            border: none;
+            border-radius: 8px;
+            font-weight: 600;
+            cursor: pointer;
+            transition: transform 0.2s;
+            font-size: 1rem;
+        }
+        .btn-primary { background: #16a34a; color: white; }
+        .btn-primary:hover { transform: translateY(-2px); box-shadow: 0 4px 12px rgba(34, 197, 94, 0.3); }
+        .btn-back { background: #f3f4f6; color: #374151; margin-top: 1rem; display: block; text-align: center; text-decoration: none; }
+        .btn-back:hover { background: #e5e7eb; }
+
+        .alert {
+            padding: 1rem;
+            border-radius: 8px;
+            margin-bottom: 1.5rem;
+            text-align: center;
+        }
+        .alert-success { background: #d1fae5; color: #065f46; }
+        .alert-error { background: #fee2e2; color: #991b1b; }
+        .toggle-item input { appearance: none; width: 42px; height: 24px; background: #e5e7eb; border-radius: 999px; position: relative; transition: background 0.2s ease; }
+        .toggle-item input:checked { background: #16a34a; }
+        .toggle-item input::after { content: ''; position: absolute; top: 2px; left: 2px; width: 20px; height: 20px; background: white; border-radius: 999px; transition: transform 0.2s ease; }
+        .toggle-item input:checked::after { transform: translateX(18px); }
+        
+        /* Toast Notification */
+        .toast {
+            visibility: hidden;
+            min-width: 250px;
+            margin-left: -125px;
+            background-color: #333;
+            color: #fff;
+            text-align: center;
+            border-radius: 8px;
+            padding: 16px;
+            position: fixed;
+            z-index: 1000;
+            right: 30px;
+            top: 30px;
+            font-size: 17px;
+            box-shadow: 0 4px 15px rgba(0,0,0,0.2);
+            opacity: 0;
+            transition: opacity 0.5s, top 0.5s;
+        }
+
+        .toast.show {
+            visibility: visible;
+            opacity: 1;
+            top: 50px;
+        }
+    </style>
+</head>
+<body>
+    <div class="ambient"></div>
+    <div class="container">
+        <h2>⚙️ Plant Security Config</h2>
+        
+        {% with messages = get_flashed_messages(with_categories=true) %}
+            {% if messages %}
+                {% for category, message in messages %}
+                    <div class="alert alert-{{ category }}">{{ message }}</div>
+                {% endfor %}
+            {% endif %}
+        {% endwith %}
+
+        <form method="POST" action="/admin/config/save">
+            <div class="form-group">
+                <label for="plant_id">Select Plant</label>
+                <select id="plant_id" name="plant_id" required onchange="loadConfig()">
+                    <option value="" disabled selected>Select a plant...</option>
+                    <option value="Plant-A">Plant-A (127.0.0.1)</option>
+                    <option value="Plant-B">Plant-B (192.168.1.10)</option>
+                    <option value="Plant-C">Plant-C (10.0.0.45)</option>
+                    <option value="Plant-D">Plant-D (172.16.0.23)</option>
+                    <option value="Plant-E">Plant-E (10.10.10.5)</option>
+                    <option value="Plant-F">Plant-F (192.168.2.50)</option>
+                    <option value="Plant-G">Plant-G (10.20.30.40)</option>
+                    <option value="Plant-H">Plant-H (172.16.1.12)</option>
+                    <option value="Plant-I">Plant-I (192.168.3.15)</option>
+                    <option value="Plant-J">Plant-J (10.0.1.12)</option>
+                    <option value="Plant-K">Plant-K (10.10.20.30)</option>
+                    <option value="Plant-L">Plant-L (192.168.4.25)</option>
+                    <option value="Plant-M">Plant-M (172.16.2.34)</option>
+                    <option value="Plant-N">Plant-N (10.30.40.50)</option>
+                    <option value="Plant-O">Plant-O (192.168.5.60)</option>
+                    <option value="Plant-P">Plant-P (10.0.2.99)</option>
+                    <option value="Plant-Q">Plant-Q (172.16.3.77)</option>
+                    <option value="Plant-R">Plant-R (192.168.10.100)</option>
+                    <option value="Plant-S">Plant-S (10.50.60.70)</option>
+                    <option value="Plant-T">Plant-T (172.16.4.88)</option>
+                </select>
+            </div>
+            <div id="wlText" style="text-align:center; margin-bottom: 1rem; font-weight: 600; color: #374151;">
+                IP Whitelisted: <span id="wlStatus">---</span>
+            </div>
+
+            <div class="toggles">
+                <label class="toggle-item">
+                    <input type="checkbox" name="assign_encryption" id="assign_encryption">
+                    Assign Encryption
+                </label>
+                <label class="toggle-item">
+                    <input type="checkbox" name="assign_sign" id="assign_sign">
+                    Assign Digital Signature
+                </label>
+            </div>
+
+            <button type="submit" class="btn btn-primary">Save Configuration</button>
+            <a href="/admin/dashboard" class="btn btn-back">Back to Dashboard</a>
+        </form>
+    </div>
+
+    <div id="toast" class="toast">Configuration Saved Successfully!</div>
+
+    <script>
+        // Pass configs from backend to JS
+        const configs = {{ configs | tojson | safe }};
+        const plantIps = {{ plant_ips | tojson | safe }};
+        const whitelistIps = {{ whitelist_ips | tojson | safe }};
+
+        function loadConfig() {
+            const plantId = document.getElementById('plant_id').value;
+            const encCheckbox = document.getElementById('assign_encryption');
+            const signCheckbox = document.getElementById('assign_sign');
+            const wlStatus = document.getElementById('wlStatus');
+            
+            if (plantId && configs[plantId]) {
+                encCheckbox.checked = configs[plantId].encryption || false;
+                signCheckbox.checked = configs[plantId].signature || false;
+            } else {
+                encCheckbox.checked = false;
+                signCheckbox.checked = false;
+            }
+            if (plantId) {
+                const ip = plantIps[plantId];
+                const isWhitelisted = whitelistIps.includes(ip);
+                wlStatus.textContent = isWhitelisted ? 'True' : '---';
+            } else {
+                wlStatus.textContent = '---';
+            }
+        }
+
+        // AJAX Form Submission
+        document.querySelector('form').addEventListener('submit', function(e) {
+            e.preventDefault();
+            
+            const plantId = document.getElementById('plant_id').value;
+            if (!plantId) {
+                alert("Please select a plant first.");
+                return;
+            }
+
+            const data = {
+                plant_id: plantId,
+                assign_encryption: document.getElementById('assign_encryption').checked,
+                assign_sign: document.getElementById('assign_sign').checked
+            };
+
+            fetch('/api/config/save', {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json'
+                },
+                body: JSON.stringify(data)
+            })
+            .then(response => response.json())
+            .then(result => {
+                if (result.status === 'success') {
+                    // Update local config store so toggling works correctly if we stay on page
+                    configs[plantId] = {
+                        encryption: data.assign_encryption,
+                        signature: data.assign_sign
+                    };
+                    
+                    showToast(result.message || "Configuration Saved!");
+                } else {
+                    alert("Error: " + result.message);
+                }
+            })
+            .catch(err => {
+                console.error(err);
+                alert("An error occurred while saving.");
+            });
+        });
+
+        function showToast(message) {
+            const toast = document.getElementById("toast");
+            toast.innerText = message;
+            toast.className = "toast show";
+            setTimeout(function(){ toast.className = toast.className.replace("show", ""); }, 3000);
+        }
+    </script>
+         <style>
+             .ambient { position: fixed; inset: 0; pointer-events: none; z-index: 0; }
+             .ambient::before { content: ""; position: absolute; width: 520px; height: 520px; background: radial-gradient(closest-side, rgba(37,99,235,0.25), transparent 70%); filter: blur(60px); top: -80px; left: -120px; border-radius: 50%; animation: float1 12s ease-in-out infinite; }
+             .ambient::after { content: ""; position: absolute; width: 520px; height: 520px; background: radial-gradient(closest-side, rgba(17,24,39,0.25), transparent 70%); filter: blur(60px); bottom: -120px; right: -180px; border-radius: 50%; animation: float2 16s ease-in-out infinite; }
+             @keyframes float1 { 0% { transform: translate(0,0); } 50% { transform: translate(30px, 20px); } 100% { transform: translate(0,0); } }
+             @keyframes float2 { 0% { transform: translate(0,0) rotate(0deg); } 50% { transform: translate(-30px, -25px) rotate(6deg); } 100% { transform: translate(0,0) rotate(0deg); } }
+         </style>
+        <style>
+            @media (max-width: 768px) {
+                .container { padding: 1.25rem; }
+            }
+        </style>
+</body>
+</html>
