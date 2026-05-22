@@ -1,4 +1,4 @@
-from flask import Flask, request, jsonify
+from flask import Flask, request, jsonify, render_template
 from datetime import datetime
 from collections import defaultdict
 import requests
@@ -89,12 +89,12 @@ def get_ip_country(ip):
     except:
         return None
 
+# DASHBOARD HOME PAGE
 @app.route("/")
 def home():
-    return jsonify({
-        "status": "Server running successfully on Vercel"
-    })
+    return render_template("index.html")
 
+# API ROUTE
 @app.route("/receive-data", methods=["POST"])
 def receive_data():
 
